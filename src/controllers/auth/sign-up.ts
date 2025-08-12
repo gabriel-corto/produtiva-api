@@ -1,8 +1,12 @@
 import { Request, Response } from 'express'
+
 import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
 
 import { signUpSchema } from '@/validators/auth'
 import { createUser, findUserByEmail } from '@/repository/users'
+
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY
 
 export async function SignUpController(req: Request, res: Response) {
   const body = req.body
@@ -18,9 +22,9 @@ export async function SignUpController(req: Request, res: Response) {
   const { name, email, password } = parsedBody
   const password_hash = await bcrypt.hash(password, 6)
 
-  const userAlreadyExist = await findUserByEmail(email)
+  const user = await findUserByEmail(email)
 
-  if (userAlreadyExist) {
+  if (user) {
     return res.status(409).json({
       success: false,
       message: {
@@ -31,6 +35,18 @@ export async function SignUpController(req: Request, res: Response) {
   }
 
   await createUser({ name, email, password: password_hash })
+
+  const token = jwt.sign({ email }, JWT_SECRET_KEY, {
+    subject: user.email,
+    expiresIn: '7d',
+  })
+
+  res.cookie('authToken', token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    maxAge: 60 * 60 * 24 * 7,
+  })
 
   return res.status(201).json({
     success: true,

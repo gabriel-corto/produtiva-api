@@ -1,20 +1,27 @@
-import express, { Request, Response } from 'express'
+import express, { Response } from 'express'
 import z from 'zod'
-import cors from 'cors'
 
+import cors from 'cors'
+import cookieParser from 'cookie-parser'
+
+import { meRoutes } from './routes/me'
 import { authRoutes } from './routes/auth'
+import { authMiddleware } from './middlewares/auth'
 
 const app = express()
 const PORT = process.env.PORT
 
-app.use(cors({
-  credentials: true,
-  origin: process.env.FRONT_END_URL
-}))
-
+app.use(
+  cors({
+    credentials: true,
+    origin: process.env.FRONT_END_URL,
+  })
+)
+app.use(cookieParser())
 app.use(express.json())
-app.use(authRoutes)
 
+app.use(authRoutes)
+app.use(authMiddleware, meRoutes)
 
 app.use((err, req, res: Response, next) => {
   if (err instanceof z.ZodError) {
@@ -27,10 +34,11 @@ app.use((err, req, res: Response, next) => {
 
   res.status(500).json({
     success: false,
-    message: 'Erro interno do servidor!',
+    message: {
+      title: 'Erro interno do servidor!',
+      description: 'Ocorreu um ero inesperado, tente novamente',
+    },
   })
 })
 
-app.listen(PORT, () =>
-  console.log(`🔥 Server is running on http://localhost:${PORT}`)
-)
+app.listen(PORT, () => console.log(`🔥 HTTP Server is running!`))

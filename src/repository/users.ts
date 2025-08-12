@@ -1,18 +1,18 @@
-import { prisma } from "@/libs/prisma";
-import { SignUpBody } from "@/validators/auth";
-
+import { prisma } from '@/lib/prisma'
+import { SignUpBody } from '@/validators/auth'
 
 export async function findUserByEmail(email: string) {
   return await prisma.users.findUnique({
     where: {
-      email
-    }
+      email,
+    },
   })
 }
 
 export async function createUser(data: SignUpBody) {
-  return await prisma.users.create({
-    data
+  const user = await prisma.users.create({
+    data,
   })
-}
 
+  return user
+}

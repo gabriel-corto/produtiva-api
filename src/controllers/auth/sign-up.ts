@@ -22,9 +22,9 @@ export async function SignUpController(req: Request, res: Response) {
   const { name, email, password } = parsedBody
   const password_hash = await bcrypt.hash(password, 6)
 
-  const user = await findUserByEmail(email)
+  const userAlreadyExist = await findUserByEmail(email)
 
-  if (user) {
+  if (userAlreadyExist) {
     return res.status(409).json({
       success: false,
       message: {
@@ -34,7 +34,7 @@ export async function SignUpController(req: Request, res: Response) {
     })
   }
 
-  await createUser({ name, email, password: password_hash })
+  const user = await createUser({ name, email, password: password_hash })
 
   const token = jwt.sign({ email }, JWT_SECRET_KEY, {
     subject: user.email,
@@ -44,7 +44,7 @@ export async function SignUpController(req: Request, res: Response) {
   res.cookie('authToken', token, {
     httpOnly: true,
     secure: true,
-    sameSite: 'none',
+    sameSite: 'lax',
     maxAge: 60 * 60 * 24 * 7,
   })
 

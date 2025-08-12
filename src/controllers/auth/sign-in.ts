@@ -20,7 +20,6 @@ export async function SignInController(req: Request, res: Response) {
   }
 
   const { email, password } = parsedBody
-
   const user = await findUserByEmail(email)
 
   if (!user) {
@@ -53,7 +52,7 @@ export async function SignInController(req: Request, res: Response) {
   res.cookie('authToken', token, {
     httpOnly: true,
     secure: true,
-    sameSite: 'none',
+    sameSite: 'lax',
     maxAge: 60 * 60 * 24 * 7,
   })
 

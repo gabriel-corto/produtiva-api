@@ -5,6 +5,8 @@ import jwt from 'jsonwebtoken'
 
 import { signUpSchema } from '@/validators/auth'
 import { createUser, findUserByEmail } from '@/repository/users'
+import { createWorkspaceRepository } from '@/repository/workspaces'
+import { generateWorkspace } from '@/utils/generate-workspace'
 
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY
 
@@ -35,17 +37,22 @@ export async function SignUpController(req: Request, res: Response) {
   }
 
   const user = await createUser({ name, email, password: password_hash })
+  await createWorkspaceRepository(generateWorkspace(user.name), user.id)
 
-  const token = jwt.sign({ email: user.email, id: user.id }, JWT_SECRET_KEY, {
-    subject: user.email,
-    expiresIn: '7d',
-  })
+  const token = jwt.sign(
+    { email: user.email, userId: user.id },
+    JWT_SECRET_KEY,
+    {
+      subject: user.email,
+      expiresIn: '2h',
+    }
+  )
 
   res.cookie('authToken', token, {
     httpOnly: true,
     secure: true,
     sameSite: 'lax',
-    maxAge: 60 * 60 * 24 * 7,
+    maxAge: 60 * 60 * 2 * 1000,
   })
 
   return res.status(201).json({

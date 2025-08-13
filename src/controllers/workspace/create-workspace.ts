@@ -1,8 +1,12 @@
 import { Response } from 'express'
-import { prisma } from '@/lib/prisma'
 
 import { createWorkspaceSchema } from '@/validators/workspace'
 import { AuthRequest } from '@/types/schema'
+import { normalizeString } from '@/utils/normalize-string'
+import {
+  createWorkspaceRepository,
+  getUserWorkspacesRepository,
+} from '@/repository/workspaces'
 
 export async function CreateWorkspaceController(
   req: AuthRequest,
@@ -18,12 +22,28 @@ export async function CreateWorkspaceController(
     })
   }
 
-  const { name } = await prisma.workspaces.create({
-    data: {
-      name: parsedBody.name,
-      userId: req.user.userId,
-    },
-  })
+  const workspaceName = normalizeString(parsedBody.name)
+
+  const workspaces = await getUserWorkspacesRepository(req.user.userId)
+
+  const workspaceAlreadyExist = workspaces.find(
+    (w) => normalizeString(w.name) === workspaceName
+  )
+
+  if (workspaceAlreadyExist) {
+    return res.status(409).json({
+      success: false,
+      message: {
+        title: 'Worspace Já Cadastrado!',
+        description: 'Ja existe um workspace com esse nome!',
+      },
+    })
+  }
+
+  const { name } = await createWorkspaceRepository(
+    parsedBody.name,
+    req.user.userId
+  )
 
   return res.status(201).json({
     success: true,

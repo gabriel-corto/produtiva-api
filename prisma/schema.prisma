@@ -24,8 +24,10 @@ model Users {
 }
 
 model Workspaces {
-  id   Int    @id @default(autoincrement())
-  name String
+  id        Int     @id @default(autoincrement())
+  name      String
+  slug      String  @unique
+  isDefault Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())

@@ -49,7 +49,7 @@ export async function SignInController(req: Request, res: Response) {
     JWT_SECRET_KEY,
     {
       subject: user.email,
-      expiresIn: '7d',
+      expiresIn: '2h',
     }
   )
 
@@ -57,7 +57,7 @@ export async function SignInController(req: Request, res: Response) {
     httpOnly: true,
     secure: true,
     sameSite: 'lax',
-    maxAge: 60 * 60 * 24 * 7,
+    maxAge: 60 * 60 * 2 * 1000,
   })
 
   return res.status(200).json({

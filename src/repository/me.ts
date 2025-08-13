@@ -8,6 +8,8 @@ export async function getMeRepository(email: string) {
     omit: {
       id: true,
       password: true,
+      createdAt: true,
+      updatedAt: true,
     },
   })
 

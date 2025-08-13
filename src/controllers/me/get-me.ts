@@ -1,24 +1,13 @@
-import { prisma } from '@/lib/prisma'
 import { getMeRepository } from '@/repository/me'
-import { findUserByEmail } from '@/repository/users'
-import { Request, Response } from 'express'
-import jwt from 'jsonwebtoken'
+import { AuthRequest } from '@/types/schema'
+import { Response } from 'express'
 
-interface TokenPayload {
-  email: string
-  iat: number
-  exp: number
-  sub: string
-}
-
-export async function GetMeController(req: Request, res: Response) {
-  const token = req.cookies.authToken
-
-  const { email } = jwt.decode(token) as TokenPayload
+export async function GetMeController(req: AuthRequest, res: Response) {
+  const { email } = req.user
 
   const user = await getMeRepository(email)
 
   res.status(200).json({
-    user,
+    ...user,
   })
 }

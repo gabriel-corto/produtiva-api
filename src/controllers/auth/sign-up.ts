@@ -36,7 +36,7 @@ export async function SignUpController(req: Request, res: Response) {
 
   const user = await createUser({ name, email, password: password_hash })
 
-  const token = jwt.sign({ email }, JWT_SECRET_KEY, {
+  const token = jwt.sign({ email: user.email, id: user.id }, JWT_SECRET_KEY, {
     subject: user.email,
     expiresIn: '7d',
   })

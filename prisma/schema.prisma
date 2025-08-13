@@ -15,5 +15,23 @@ model Users {
   password  String
   avatarUrl String?
 
+  workspaces Workspaces[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
   @@map("users")
+}
+
+model Workspaces {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  Users  Users @relation(fields: [userId], references: [id])
+  userId Int
+
+  @@map("workspaces")
 }

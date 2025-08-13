@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser'
 import { meRoutes } from './routes/me'
 import { authRoutes } from './routes/auth'
 import { authMiddleware } from './middlewares/auth'
+import { workspaceRoutes } from './routes/workspace'
 
 const app = express()
 const PORT = process.env.PORT
@@ -21,7 +22,7 @@ app.use(cookieParser())
 app.use(express.json())
 
 app.use(authRoutes)
-app.use(authMiddleware, meRoutes)
+app.use(authMiddleware, meRoutes, workspaceRoutes)
 
 app.use((err, req, res: Response, next) => {
   if (err instanceof z.ZodError) {

@@ -44,10 +44,14 @@ export async function SignInController(req: Request, res: Response) {
     })
   }
 
-  const token = jwt.sign({ email }, JWT_SECRET_KEY, {
-    subject: user.email,
-    expiresIn: '7d',
-  })
+  const token = jwt.sign(
+    { email: user.email, userId: user.id },
+    JWT_SECRET_KEY,
+    {
+      subject: user.email,
+      expiresIn: '7d',
+    }
+  )
 
   res.cookie('authToken', token, {
     httpOnly: true,

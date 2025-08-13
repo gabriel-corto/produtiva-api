@@ -1,8 +1,11 @@
-import { NextFunction, Request, Response } from 'express'
+import { AuthRequest, TokenPayload } from '@/types/schema'
+import { NextFunction, Response } from 'express'
 import jwt from 'jsonwebtoken'
 
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY
+
 export async function authMiddleware(
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction
 ) {
@@ -16,7 +19,9 @@ export async function authMiddleware(
   }
 
   try {
-    jwt.verify(token, process.env.JWT_SECRET_KEY as string)
+    const decoded = jwt.verify(token, JWT_SECRET_KEY) as TokenPayload
+    req.user = decoded
+
     next()
   } catch (error) {
     return res.status(401).json({
